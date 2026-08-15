@@ -15,6 +15,11 @@ create type estado_llamada_nuevo as enum (
   'error'
 );
 
+-- El default actual ('pendiente'::estado_llamada) está tipado contra el enum
+-- viejo: Postgres no puede castearlo solo y falla con "default for column
+-- cannot be cast automatically". Se quita antes y se repone después.
+alter table llamadas alter column estado drop default;
+
 alter table llamadas
   alter column estado type estado_llamada_nuevo
   using (
