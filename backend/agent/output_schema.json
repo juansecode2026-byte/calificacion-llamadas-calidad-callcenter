@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "properties": {
+    "evaluaciones": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "parametro_id": {
+            "type": "string",
+            "description": "id del parámetro de calidad evaluado, tal como llegó en el input"
+          },
+          "valor": {
+            "enum": [0, 2, "n/a"],
+            "description": "0 = no cumplido, 2 = cumplido, n/a = la situación que evalúa la pregunta no se dio en esta llamada. n/a es una excepción, no un comodín para la incertidumbre — ver system_prompt.md."
+          },
+          "justificacion": {
+            "type": "string",
+            "description": "Evidencia concreta de la transcripción. Si valor es n/a, debe explicar por qué la situación no se dio en esta llamada, no solo afirmar que no aplica."
+          }
+        },
+        "required": ["parametro_id", "valor", "justificacion"]
+      }
+    }
+  },
+  "required": ["evaluaciones"]
+}
