@@ -1,0 +1,44 @@
+# Manifiesto de la estructura full stack.
+# Cada carpeta lleva un "para" que describe qué va adentro.
+# Ese texto aparece en el archivo marcador cuando la carpeta está vacía.
+#
+# Para adaptar el skill a otro proyecto: editar solo este archivo.
+
+proyecto: Sistema de evaluación de calidad de llamadas
+
+carpetas:
+  - ruta: docs
+    para: Documentación de negocio y técnica (CONTEXT.md, agent_system_prompt.md, capturas de referencia) — ya contiene CONTEXT.md
+
+  - ruta: db
+    para: Todo lo relacionado con la base de datos — schema.sql (Supabase/Postgres) vive acá
+  - ruta: db/migrations
+    para: Migraciones incrementales del schema, en orden cronológico (a partir del schema.sql inicial)
+
+  - ruta: backend
+    para: Capa de servidor completa
+  - ruta: backend/functions
+    para: Edge Functions — incluye la carga manual de llamadas (recibe el audio, calcula duración, crea el registro)
+  - ruta: backend/worker
+    para: Orquestador asíncrono del pipeline (transcripción con Whisper/faster-whisper — falta decidir diarización —, cálculo de veredictos, notificación). La ingesta es carga manual vía Edge Function, no pasa por acá.
+  - ruta: backend/agent
+    para: "PENDIENTE (aplazado, ver DECISIONES.md): agente evaluador automático. Hoy la calificación es 100% manual — un evaluador humano completa el scorecard. Esta carpeta queda vacía a propósito hasta que el negocio decida asistir/automatizar el juicio de calidad."
+
+  - ruta: frontend
+    para: Capa de cliente completa
+  - ruta: frontend/dashboard
+    para: App React con la landing pública y el dashboard tras login
+  - ruta: frontend/dashboard/src
+    para: Código fuente de la app
+  - ruta: frontend/dashboard/src/pages
+    para: Páginas de nivel superior (Landing, Dashboard, Formulario de calificación/scorecard)
+  - ruta: frontend/dashboard/src/components
+    para: Componentes reutilizables de UI, incluyendo el scorecard digital (parametros_calidad por categoría)
+  - ruta: frontend/dashboard/src/charts
+    para: Wrappers de Recharts para los indicadores del dashboard (veredictos por categoría, % probabilidad de éxito, etc.)
+  - ruta: frontend/dashboard/src/hooks
+    para: Hooks de React, incluyendo la suscripción a Supabase Realtime
+  - ruta: frontend/dashboard/src/lib
+    para: Clientes y utilidades compartidas (supabaseClient, helpers)
+  - ruta: frontend/dashboard/public
+    para: Assets estáticos servidos tal cual
