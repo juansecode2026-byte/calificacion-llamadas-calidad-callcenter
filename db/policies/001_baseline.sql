@@ -18,6 +18,9 @@
 -- =========================================================
 -- Helper: ¿el usuario logueado es personal de calidad activo?
 -- =========================================================
+-- OJO: 002_helper_a_schema_privado.sql mueve esta función al schema
+-- "private" —crearla en "public" la exponía como endpoint REST. Los helpers
+-- nuevos van directo en "private".
 -- security definer + search_path fijo: evita que la función quede sujeta a
 -- la RLS de "evaluadores" que ella misma ayuda a evaluar (recursión), y
 -- evita el riesgo de search_path hijacking en funciones security definer.
