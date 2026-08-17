@@ -8,6 +8,14 @@
 -- Ver docs/plantilla-lid-montos-grandes-ejemplo-real.jpeg: caso real con
 -- SI / NO / SI = 2 positivos = la venta cuenta.
 --
+-- OJO al mirar esa captura: la celda de "Trabajo con objeciones" muestra
+-- "2" en vez de "SI". Es un ERROR de la planilla de referencia —fórmula mal
+-- copiada que arrastró el puntaje crudo a la celda de veredicto—, no un
+-- valor válido. Se lee como 'SI' (sus 3 preguntas dieron 2/2/2, todas
+-- aprobadas). El schema lo hace imposible: el check de
+-- calificacion_categoria_resultado.veredicto solo acepta SI/NO/SIN_VEREDICTO,
+-- así que un número es rechazado por la base.
+--
 -- El umbral es absoluto, no proporcional: hacen falta 2 'SI', sin importar
 -- cuántas categorías hayan resultado aplicables. Una categoría en
 -- SIN_VEREDICTO (todas sus preguntas n/a, ver migración 008) simplemente no
