@@ -52,7 +52,7 @@ Sistema de evaluación de calidad de llamadas para un call center de ventas. Aut
 
 ## Agente evaluador (paso 3 del pipeline)
 - **Modelo:** `claude-sonnet-5` por defecto. Balance entre criterio (evidencia + matices) y costo, dado que corre por cada llamada evaluada. Subir a Opus solo si la validación de calidad muestra fallos en casos ambiguos; bajar a Haiku 4.5 solo tras comparar resultados reales.
-- **Structured Outputs (JSON Schema):** la respuesta del modelo queda forzada a cumplir el schema a nivel de generación — `valor` no puede ser otra cosa que 0 o 2. Ver `backend/agent/output_schema.json`.
+- **Structured Outputs (JSON Schema):** la respuesta del modelo queda forzada a cumplir el schema a nivel de generación — `valor` no puede ser otra cosa que `"0"`, `"2"` o `"n/a"`, **siempre como texto** (un enum de tipos mixtos número/string no es válido en modo estricto). `parser.ts` convierte `"0"`/`"2"` a `valor` entero + `no_aplica=false`, y `"n/a"` a `valor=null` + `no_aplica=true`. Ver `backend/agent/output_schema.json`.
 - **`temperature` baja:** para reproducibilidad entre evaluaciones de la misma llamada. No es 100% determinístico incluso en 0 — solo reduce la variación.
 - **División de responsabilidades:** la API garantiza el formato; `parser.ts` solo valida reglas de negocio (que los 9 `id` de la plantilla estén presentes, ninguno repetido ni faltante).
 
@@ -85,6 +85,21 @@ backend/agent/
 - Definir la fórmula del indicador de probabilidad de éxito.
 - Decidir si se implementa una fase de revisión humana (IA sugiere → humano confirma/corrige) antes de pasar a 100% automático. Recomendado, no confirmado.
 - Confirmar quién sube las llamadas al dashboard (equipo de calidad, el propio asesor, o cualquiera con acceso) — hoy el formulario no distingue, cualquiera con acceso puede seleccionar el asesor y subir.
+
+## Variables de entorno
+
+Ver `.env.example` (commiteado, sin valores reales) para la lista completa.
+Regla de STACK.md aplicada acá: **ninguna variable con prefijo `VITE_` puede
+contener un secreto** — todo lo que empieza con `VITE_` se empaqueta en el
+bundle público del dashboard, visible para cualquiera que abra el navegador.
+
+| Variable | Dónde se usa | ¿Secreta? |
+|---|---|---|
+| `VITE_SUPABASE_URL` | Frontend (`frontend/dashboard`) | No |
+| `VITE_SUPABASE_ANON_KEY` | Frontend | No — protegida por RLS, no por secreto |
+| `SUPABASE_SERVICE_ROLE_KEY` | Backend/worker (`backend/functions`, `backend/worker`) | **Sí — nunca `VITE_`** |
+| `ANTHROPIC_API_KEY` | Agente evaluador (`backend/agent/client.ts`) | **Sí — nunca `VITE_`** |
+| `WHISPER_MODEL` | Worker de transcripción | No |
 
 ## Restricciones
 - No correr el pipeline de evaluación de forma síncrona en el request del botón.
