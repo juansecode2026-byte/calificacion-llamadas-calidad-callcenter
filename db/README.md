@@ -6,11 +6,12 @@ este orden**:
 
 1. **`000_schema_inicial.sql`** — el schema base. Trae advertencia propia:
    corrido solo, levanta la lógica de veredicto vieja (anterior al `n/a`).
-2. **`migrations/001_areas.sql` → `migrations/014_veredicto_categoria_robusto.sql`**,
+2. **`migrations/001_areas.sql` → `migrations/019_normalizar_correo_asesor.sql`**,
    en orden numérico estricto.
 3. **`policies/001_baseline.sql`**
 4. **`policies/002_helper_a_schema_privado.sql`**
-5. Sembrar a mano `configuracion_empresa` con el nombre comercial y el canal
+5. **`policies/020_storage_audios.sql`**
+6. Sembrar a mano `configuracion_empresa` con el nombre comercial y el canal
    de notificación de esa empresa (ver comentario en `migrations/006_notificaciones.sql`).
 
 ## Por qué existe este archivo
@@ -36,5 +37,25 @@ RLS ya esté activo.
 
 A partir de la migración 014, todo el SQL nuevo —sea migración o policy—
 usa una numeración continua y creciente, sin dos carpetas numerando por
-separado. El próximo archivo de políticas de roles (pendiente, ver
-`DECISIONES.md`) es `015_roles.sql`, no `003_roles.sql`.
+separado. Los números 015 a 020 ya están tomados (auditoría del
+2026-08-19, ver más abajo). El próximo archivo de políticas de roles
+(pendiente, ver `DECISIONES.md`) es `021_roles.sql`.
+
+## Lo que agregó la auditoría del 2026-08-19 (H5 a H13)
+
+- `migrations/015_cerrar_calificacion.sql` — H5: `cerrar_calificacion()`
+  como único camino de escritura del resultado, más `contar_categoria()`
+  como fuente única de verdad del conteo (evita que
+  `calcular_veredicto_categoria()` y este cálculo diverjan).
+- `migrations/016_search_path_pg_temp.sql` — H7: `pg_temp` explícito en
+  `is_evaluador_activo()`, `calcular_veredicto_venta()` y
+  `calificacion_requiere_revision()`.
+- `migrations/017_columnas_correccion_humana.sql` — H6: la corrección
+  humana solo puede tocar `comentario`, nunca `valor`, a nivel de grant.
+- `migrations/018_calificaciones_origen_ia.sql` — H9: `evaluador_id`
+  nullable + columna `origen`, para que el pipeline automático pueda
+  insertar sin inventar un evaluador falso.
+- `migrations/019_normalizar_correo_asesor.sql` — H10: unicidad de correo
+  sobre `lower(trim(correo))` + check de formato.
+- `policies/020_storage_audios.sql` — H13: bucket privado + policy de
+  lectura para los audios.

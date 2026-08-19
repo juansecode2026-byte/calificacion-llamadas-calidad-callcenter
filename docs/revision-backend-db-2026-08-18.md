@@ -32,8 +32,39 @@ commit, no acá.
 >
 > H1 (el renombre del schema) no requiere aplicarse en Supabase —es
 > reorganización del repo, no una migración—, así que ya está cerrado por
-> completo. El resto de los hallazgos (10 importantes, 11 menores) sigue sin
-> tocar.
+> completo.
+>
+> **Actualización 2026-08-19 (mismo día): los 8 hallazgos importantes que
+> quedaban (H5, H6, H7, H8, H9, H10, H12, H13) quedaron resueltos en el
+> repo**, sin aplicar todavía contra Supabase:
+> - `db/migrations/015_cerrar_calificacion.sql` (H5) — de paso factoriza el
+>   conteo de H3 en `contar_categoria()`, para que
+>   `calcular_veredicto_categoria()` y esta función no dupliquen la misma
+>   lógica. **Desviación deliberada de la solución sugerida:** no se agregó
+>   el trigger automático sobre `calificacion_detalle` — un `AFTER INSERT
+>   FOR EACH ROW` dispararía la función tras cada fila individual, y con las
+>   9 preguntas insertándose de a una explotaría en la primera (H3 hace
+>   fallar la función si falta un detalle). El worker llama a
+>   `cerrar_calificacion()` explícito al final; la razón original del
+>   trigger (que una corrección humana deje el veredicto viejo colgado) la
+>   resuelve H6, que le quita a `authenticated` el permiso de tocar `valor`.
+> - `db/migrations/016_search_path_pg_temp.sql` (H7)
+> - `db/migrations/017_columnas_correccion_humana.sql` (H6)
+> - `db/migrations/018_calificaciones_origen_ia.sql` (H9)
+> - `db/migrations/019_normalizar_correo_asesor.sql` (H10)
+> - `db/policies/020_storage_audios.sql` (H13)
+> - `backend/agent/output_schema.json` + `system_prompt.md` (H8) — `valor`
+>   pasa a ser siempre texto (`"0"`/`"2"`/`"n/a"`), nunca número: verificado
+>   contra la referencia de Structured Outputs que un enum de tipos mixtos
+>   sin `type` no es válido en modo estricto, y que `additionalProperties:
+>   false` es obligatorio en todo objeto (antes faltaba).
+> - `.gitignore` + `.env.example` + sección "Variables de entorno" en
+>   `CLAUDE.md` (H12)
+>
+> **H11 se resolvió antes**, con `db/README.md` (parte del cierre de H1).
+>
+> Sigue sin tocar: **11 hallazgos menores** (H14 a H24, salvo la corrección
+> ya hecha a H23).
 
 ---
 

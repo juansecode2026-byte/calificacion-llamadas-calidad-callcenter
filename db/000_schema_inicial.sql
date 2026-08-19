@@ -9,7 +9,7 @@
 -- propósito para conservar la historia real del proyecto (con qué arrancó,
 -- vs. qué se corrigió después). No tiene `no_aplica`, `SIN_VEREDICTO`,
 -- `criterio_evaluacion`, `veredicto_venta`, ni ninguna de las columnas o
--- funciones que las migraciones 001-014 agregaron.
+-- funciones que las migraciones 001-019 agregaron.
 --
 -- Corrido solo, este archivo levanta una base con la lógica de veredicto
 -- VIEJA — la que existía antes del `n/a` (migración 008). Fue justo el
