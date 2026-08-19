@@ -87,8 +87,52 @@ commit, no acá.
 > aplicarse en Supabase** — son archivos de repo, ya cerrados por completo
 > desde el commit.
 
-Sigue sin tocar: **11 hallazgos menores** (H14 a H24, salvo la corrección
-ya hecha a H23).
+> **Actualización 2026-08-19: los 11 hallazgos menores también quedaron
+> resueltos**, código y base real sincronizados en la misma sesión:
+> - H14, H15, H16, H17, H19, H21, H22 → migraciones `021` a `027`,
+>   aplicadas vía `apply_migration` y verificadas con una consulta de 18
+>   subconsultas escalares + prueba funcional + `get_advisors(security)` en
+>   0 lints. Detalle de cada una en `db/README.md`.
+> - **H17 con la misma desviación deliberada que H5**: no se revocó `usage
+>   on private` a `anon`, porque las policies sin `to <rol>` de
+>   `db/policies/001_baseline.sql` aplican a `PUBLIC` y necesitan resolver
+>   `is_evaluador_activo()` también para `anon` — revocarlo reproduciría el
+>   error ya documentado y descartado en `policies/002`. `cerrar_calificacion()`
+>   queda como la única función de este grupo que se queda en `public`, por
+>   ser el punto de entrada que el worker invoca por RPC; las otras 4
+>   pasan a `private`.
+> - **Detalle técnico no anticipado por el informe**: `contar_categoria()`
+>   cambió su firma de retorno (se sumó `no_aplicables`), y `CREATE OR
+>   REPLACE FUNCTION` no permite cambiar el tipo de retorno de una función
+>   existente — hubo que `DROP FUNCTION` antes de recrearla (migración
+>   022). Sin dependencia dura que romper: Postgres no rastrea llamadas
+>   función-a-función vía `pg_depend`.
+> - **H19 se completó más allá de lo que listaba el informe**: nombró 6 de
+>   las 13 foreign keys del proyecto; se verificaron los 13 nombres reales
+>   contra `pg_constraint` (no se adivinaron) y se les puso `ON DELETE`
+>   explícito a todas, con el mismo criterio (`CASCADE` para lo que es
+>   satélite de una calificación/llamada, `RESTRICT` para datos de
+>   referencia — coherente con el patrón `activo` que el proyecto ya usa
+>   en vez de borrar filas de catálogo).
+> - H18 y H24 no ameritaban una migración — son advertencias sobre
+>   *cómo* aplicar SQL ya existente, no un defecto del SQL en sí. H18 quedó
+>   como nota en `db/README.md` (nunca re-ejecutar `policies/001_baseline.sql`
+>   después de `policies/002`). H24 se dejó sin acción: el escenario que
+>   describe (backfill de `apellidos` con datos preexistentes) no puede
+>   ocurrir bajo el modelo de despliegue real del proyecto — cada tenant
+>   nuevo corre el set completo de migraciones contra un proyecto Supabase
+>   vacío, nunca contra uno con `asesores` ya cargados a medio camino.
+> - H20 → `system_prompt.md`: se agregaron las reglas 9 y 10 con la lógica
+>   de `docs/caso-de-referencia-criterios.md` (se evalúa la conducta del
+>   asesor, no la reacción del cliente; la justificación describe lo que
+>   ocurrió, nunca lo que faltó en modo prescriptivo). De paso se sacó el
+>   adorno de "más de 100 años de experiencia" y la instrucción de "responde
+>   únicamente con JSON válido", redundante con Structured Outputs.
+> - H23 (resto) → se borró la captura duplicada
+>   (`docs/WhatsApp Image 2026-07-29 at 3.53.44 PM.jpeg`), verificado antes
+>   que nada la referenciaba.
+>
+> **Los 24 hallazgos de esta auditoría están cerrados.**
 
 ---
 

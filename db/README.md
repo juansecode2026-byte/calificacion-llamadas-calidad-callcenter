@@ -6,9 +6,11 @@ este orden**:
 
 1. **`000_schema_inicial.sql`** — el schema base. Trae advertencia propia:
    corrido solo, levanta la lógica de veredicto vieja (anterior al `n/a`).
-2. **`migrations/001_areas.sql` → `migrations/019_normalizar_correo_asesor.sql`**,
+2. **`migrations/001_areas.sql` → `migrations/027_calificaciones_plantilla_version.sql`**,
    en orden numérico estricto.
-3. **`policies/001_baseline.sql`**
+3. **`policies/001_baseline.sql`** — ⚠️ correrlo una sola vez. Ver "La
+   excepción histórica" más abajo: re-ejecutarlo después de `policies/002`
+   recrea `is_evaluador_activo()` en `public` (H18 de la auditoría).
 4. **`policies/002_helper_a_schema_privado.sql`**
 5. **`policies/020_storage_audios.sql`**
 6. Sembrar a mano `configuracion_empresa` con el nombre comercial y el canal
@@ -37,11 +39,11 @@ RLS ya esté activo.
 
 A partir de la migración 014, todo el SQL nuevo —sea migración o policy—
 usa una numeración continua y creciente, sin dos carpetas numerando por
-separado. Los números 015 a 020 ya están tomados (auditoría del
+separado. Los números 015 a 027 ya están tomados (auditoría del
 2026-08-19, ver más abajo). El próximo archivo de políticas de roles
-(pendiente, ver `DECISIONES.md`) es `021_roles.sql`.
+(pendiente, ver `DECISIONES.md`) es `028_roles.sql`.
 
-## Lo que agregó la auditoría del 2026-08-19 (H5 a H13)
+## Lo que agregó la auditoría del 2026-08-19 (H5 a H24)
 
 - `migrations/015_cerrar_calificacion.sql` — H5: `cerrar_calificacion()`
   como único camino de escritura del resultado, más `contar_categoria()`
@@ -59,3 +61,26 @@ separado. Los números 015 a 020 ya están tomados (auditoría del
   sobre `lower(trim(correo))` + check de formato.
 - `policies/020_storage_audios.sql` — H13: bucket privado + policy de
   lectura para los audios.
+- `migrations/021_valor_cota_superior.sql` — H14: `valor` acotado a 0/2.
+- `migrations/022_preguntas_totales_check.sql` — H15: check de coherencia
+  + columna `preguntas_no_aplica`, poblada por `cerrar_calificacion()`.
+- `migrations/023_calificaciones_vigente.sql` — H16: reprocesar una
+  llamada ya no duplica KPIs; la calificación vieja queda `vigente=false`.
+- `migrations/024_funciones_calculo_a_privado.sql` — H17: las 4 funciones
+  de cálculo internas pasan a `private`; `cerrar_calificacion()` es la
+  única que se queda en `public` como punto de entrada del worker.
+  **Ojo:** no se revocó `usage on private` a `anon` — hacerlo rompería
+  `is_evaluador_activo()`, que las policies (sin `to <rol>`, aplican a
+  `PUBLIC`) siguen necesitando resolver para `anon` también. El comentario
+  del propio archivo explica por qué.
+- `migrations/025_foreign_keys_on_delete.sql` — H19: `ON DELETE` explícito
+  en las 13 foreign keys del proyecto (`CASCADE` para lo que es satélite de
+  una calificación/llamada, `RESTRICT` para datos de referencia).
+- `migrations/026_transcripciones_vigente.sql` — H21: mismo patrón que la
+  023, para poder re-transcribir sin perder la evidencia anterior.
+- `migrations/027_calificaciones_plantilla_version.sql` — H22: registra
+  qué versión de la plantilla estaba vigente al crear cada calificación.
+
+H18, H20, H23 y H24 no necesitaron migración — fueron cambios de
+documentación o de otros archivos del repo. Ver
+`docs/revision-backend-db-2026-08-18.md` para el detalle completo.
