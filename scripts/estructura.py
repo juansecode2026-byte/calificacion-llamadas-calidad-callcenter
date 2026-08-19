@@ -19,6 +19,14 @@ import re
 import sys
 from pathlib import Path
 
+# La consola de Windows usa cp1252 por defecto, que no sabe escribir los
+# emojis del reporte (✅ / ⬜): el script hacía todo su trabajo y recién
+# entonces moría con UnicodeEncodeError al imprimir. Forzamos UTF-8 en la
+# salida para que el reporte se vea en cualquier terminal.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 MARCADOR = "_VACIA.md"
 
 PLANTILLA_MARCADOR = """# Carpeta vacía — pendiente
