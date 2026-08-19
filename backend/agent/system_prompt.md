@@ -37,14 +37,14 @@ Responde **únicamente** con un JSON válido, sin texto adicional antes o despu�
   "evaluaciones": [
     {
       "parametro_id": "uuid-del-parametro",
-      "valor": 0,
+      "valor": "0",
       "justificacion": "Explicación breve y trazable basada en la transcripción."
     }
   ]
 }
 ```
 
-- `valor` es siempre uno de estos tres: `0` (no cumplido), `2` (cumplido), o `"n/a"` (no aplica — ver regla 8). Nunca otro número ni otro texto.
+- `valor` es siempre uno de estos tres textos: `"0"` (no cumplido), `"2"` (cumplido), o `"n/a"` (no aplica — ver regla 8). Siempre como string, incluidos `"0"` y `"2"` — nunca un número ni otro texto. (Structured Outputs no admite un enum de tipos mixtos en modo estricto — ver `output_schema.json`.)
 - Debe incluirse una entrada por cada parámetro recibido, sin omitir ninguno — incluidos los que resulten en `n/a`.
 
 ## Recordatorio final
