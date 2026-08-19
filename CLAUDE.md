@@ -66,6 +66,9 @@ backend/agent/
 - `docs/CONTEXT.md` — contexto de negocio y técnico completo
 - `db/schema.sql` — schema completo con seed data
 - `backend/agent/system_prompt.md` — system prompt del agente evaluador
+- `docs/caso-de-referencia-criterios.md` — lógica de los criterios deducida del
+  único caso real calificado a mano (`docs/plantilla-lid-montos-grandes-ejemplo-real.jpeg`).
+  Leer antes de redactar los textos de `criterio_evaluacion`.
 
 ## Estado actual
 - Modelo de datos completo: advisors, evaluators, calls, transcriptions, evaluation templates, categories, quality parameters, scores, score_detail, category results.
