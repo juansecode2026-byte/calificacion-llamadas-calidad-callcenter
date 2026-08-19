@@ -63,8 +63,32 @@ commit, no acá.
 >
 > **H11 se resolvió antes**, con `db/README.md` (parte del cierre de H1).
 >
-> Sigue sin tocar: **11 hallazgos menores** (H14 a H24, salvo la corrección
-> ya hecha a H23).
+> **Actualización 2026-08-19 (mismo día, conector reconectado): H5, H6, H7,
+> H9, H10 y H13 quedaron aplicados y verificados contra la base real**
+> (proyecto `mdkussaxoyhdwvezwjqe`), vía `apply_migration` del conector MCP
+> en vez de a mano. `list_migrations` mostró que la 014 no quedó registrada
+> en el historial de Supabase —se había corrido a mano la sesión anterior,
+> cuando el conector seguía caído— pero sus efectos ya estaban vivos, así
+> que no se reaplicó. Verificado con una sola consulta agregando
+> subconsultas escalares: `pg_temp` presente en las 4 funciones
+> (`cerrar_calificacion`, `contar_categoria`, `is_evaluador_activo`,
+> `calcular_veredicto_venta`, `calificacion_requiere_revision`); el grant
+> de `authenticated` en `calificacion_detalle` quedó reducido exactamente a
+> `comentario, corregido_por_humano`; el trigger
+> `trg_marcar_correccion_humana` existe; `calificaciones.evaluador_id` es
+> nullable con `origen` default `'ia'`; el check `asesores_correo_formato`
+> y el índice `asesores_correo_unique` existen; el bucket `audios-llamadas`
+> quedó con `public: false`. Prueba funcional: `cerrar_calificacion()` con
+> un id inexistente falla con `P0001: calificacion ... inexistente` en vez
+> de fallar en silencio. `get_advisors(security)` devolvió **0 lints** —
+> ningún hueco nuevo introducido por estos 6 cambios.
+>
+> **H8 (Structured Outputs) y H12 (variables de entorno) no requieren
+> aplicarse en Supabase** — son archivos de repo, ya cerrados por completo
+> desde el commit.
+
+Sigue sin tocar: **11 hallazgos menores** (H14 a H24, salvo la corrección
+ya hecha a H23).
 
 ---
 
