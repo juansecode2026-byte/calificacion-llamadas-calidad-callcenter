@@ -2,6 +2,24 @@
 -- Sistema de Calificación de Calidad de Llamadas
 -- Esquema + datos semilla (plantilla real "LID de montos grandes")
 -- =========================================================
+--
+-- ⚠️  NUNCA CORRER ESTE ARCHIVO SOLO. ⚠️
+--
+-- Este es el estado del schema ANTES de la migración 001 — congelado a
+-- propósito para conservar la historia real del proyecto (con qué arrancó,
+-- vs. qué se corrigió después). No tiene `no_aplica`, `SIN_VEREDICTO`,
+-- `criterio_evaluacion`, `veredicto_venta`, ni ninguna de las columnas o
+-- funciones que las migraciones 001-014 agregaron.
+--
+-- Corrido solo, este archivo levanta una base con la lógica de veredicto
+-- VIEJA — la que existía antes del `n/a` (migración 008). Fue justo el
+-- riesgo detectado en la auditoría del 2026-08-18 (hallazgo H1): con hasta
+-- 5 proyectos Supabase (uno por empresa cliente), un tenant nuevo levantado
+-- solo con este archivo arrancaría roto.
+--
+-- Orden correcto para levantar un proyecto nuevo: ver db/README.md.
+-- (Antes de la migración 014 este archivo se llamaba `schema.sql` — el
+-- nombre viejo queda en el historial de git, no en el árbol actual.)
 
 create extension if not exists "pgcrypto";
 

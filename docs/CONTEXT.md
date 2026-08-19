@@ -1,7 +1,7 @@
 # CONTEXT.md — Sistema de Calificación de Calidad de Llamadas
 
 > Este archivo es el contexto de arranque para Claude Code / cualquier desarrollador que retome este proyecto.
-> Colócalo en la raíz del repo. Complementa con `schema.sql` (esquema de base de datos ya listo para correr en Supabase).
+> Colócalo en la raíz del repo. Complementa con `db/README.md` (orden de ejecución del SQL) y `db/000_schema_inicial.sql` (esquema base — nunca correr solo, ver el README).
 
 ## 1. Qué es este proyecto
 
@@ -20,7 +20,7 @@ Una compañía tiene asesores comerciales que venden vía telefónica. El depart
 
 | Decisión | Estado | Detalle |
 |---|---|---|
-| Modelo de datos | ✅ Definido | Ver `schema.sql` |
+| Modelo de datos | ✅ Definido | Ver `db/000_schema_inicial.sql` + `db/migrations/` |
 | Plantilla real de evaluación | ✅ Cargada | "LID de montos grandes" — 3 categorías, 9 preguntas |
 | Regla de veredicto por categoría | ✅ Confirmada | Mayoría de preguntas aprobadas (ver sección 4) |
 | Backend/DB | ✅ Decidido | Supabase (Postgres + Auth + Storage) |
@@ -33,7 +33,7 @@ Una compañía tiene asesores comerciales que venden vía telefónica. El depart
 | Escala máxima de tenants | ✅ Confirmado | Máximo **5 empresas** cliente, por diseño — límite explícito para evitar saturación/colapso en producción. Con proyectos separados, además contiene el radio de impacto de cualquier falla a una sola empresa. |
 | Routing empresa → proyecto Supabase | ❌ Pendiente | Falta definir dónde vive el registro de qué empresa usa qué proyecto (URL/keys) y cómo el login resuelve a cuál conectarse |
 
-## 3. Modelo de datos (resumen — detalle completo en `schema.sql`)
+## 3. Modelo de datos (resumen — detalle completo en `db/000_schema_inicial.sql` + `db/migrations/`)
 
 - `asesores` — quién hace las llamadas
 - `evaluadores` — quién califica
@@ -58,7 +58,7 @@ Ejemplo real: categoría con 3 preguntas y umbral 0.66 → se necesitan **al men
 
 Una pregunta se considera "aprobada" cuando `valor >= valor_aprobacion_minimo` (definido por pregunta en `parametros_calidad`).
 
-La función SQL `calcular_veredicto_categoria()` en `schema.sql` ya implementa esta lógica — úsala como referencia o llámala directo desde el backend.
+La función SQL `calcular_veredicto_categoria()` (definida en `db/000_schema_inicial.sql`, reescrita por `db/migrations/008_valor_na_y_veredicto.sql` y `014_veredicto_categoria_robusto.sql`) ya implementa esta lógica — úsala como referencia o llámala directo desde el backend. **Ojo:** esta sección describe la regla original de 3 preguntas fijas; con el `n/a` (migración 008) el denominador es "preguntas aplicables", no siempre 3 — ver `CLAUDE.md`.
 
 ## 5. Plantilla real: "LID de montos grandes"
 
@@ -104,7 +104,8 @@ Para producción con volumen alto, considerar `faster-whisper` (mismo modelo, m�
 
 ## 8. Próximos pasos sugeridos al retomar en Claude Code
 
-1. Correr `schema.sql` contra el proyecto de Supabase
+1. Levantar el proyecto de Supabase siguiendo el orden de `db/README.md`
+   (nunca correr `db/000_schema_inicial.sql` suelto)
 2. Construir el formulario de calificación (scorecard digital) siguiendo la estructura de `parametros_calidad`
 3. Construir el dashboard con los indicadores listados en la especificación completa
 4. Resolver los pendientes de la sección 2 de este archivo antes de tocar ingesta de audio y transcripción

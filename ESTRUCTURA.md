@@ -7,8 +7,8 @@ Generado por `scripts/estructura.py`. No editar a mano: se sobrescribe.
 | | Carpeta | Para |
 |---|---|---|
 | ✅ | `docs/` | Documentación de negocio y técnica (CONTEXT.md, agent_system_prompt.md, capturas de referencia) — ya contiene CONTEXT.md |
-| ✅ | `db/` | Todo lo relacionado con la base de datos — schema.sql (Supabase/Postgres) vive acá |
-| ✅ | `db/migrations/` | Migraciones incrementales del schema, en orden cronológico (a partir del schema.sql inicial) |
+| ✅ | `db/` | Todo lo relacionado con la base de datos — 000_schema_inicial.sql (Supabase/Postgres) y README.md con el orden de ejecución viven acá |
+| ✅ | `db/migrations/` | Migraciones incrementales del schema, en orden cronológico (a partir de 000_schema_inicial.sql) |
 | ✅ | `db/policies/` | Políticas RLS, en archivos separados del schema y de las migraciones (STACK.md lo exige) — ver 001_baseline.sql |
 | ✅ | `backend/` | Capa de servidor completa |
 | ⬜ | `backend/functions/` | Edge Functions — incluye la carga manual de llamadas (recibe el audio, calcula duración, crea el registro) |

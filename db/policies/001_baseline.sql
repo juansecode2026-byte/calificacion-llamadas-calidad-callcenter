@@ -1,6 +1,6 @@
 -- Políticas RLS — baseline mínimo
 --
--- Requiere: db/schema.sql + db/migrations/001 a 009 ya aplicadas
+-- Requiere: db/000_schema_inicial.sql + db/migrations/001 a 009 ya aplicadas
 -- (en particular la 009, que agrega evaluadores.auth_user_id).
 --
 -- Alcance de este archivo: el guardrail día uno, no el diseño fino de

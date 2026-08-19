@@ -15,8 +15,10 @@ Sistema de evaluación de calidad de llamadas para un call center de ventas. Aut
 /docs
   CONTEXT.md
 /db
-  schema.sql
+  000_schema_inicial.sql
   migrations/
+  policies/
+  README.md          # orden de ejecución — ver antes de levantar un proyecto nuevo
 /backend
   functions/         # incluye la carga manual de llamadas
   worker/
@@ -64,7 +66,8 @@ backend/agent/
 
 ## Archivos de referencia
 - `docs/CONTEXT.md` — contexto de negocio y técnico completo
-- `db/schema.sql` — schema completo con seed data
+- `db/README.md` — orden de ejecución del SQL, leer antes de levantar un proyecto nuevo
+- `db/000_schema_inicial.sql` — schema base con seed data (⚠️ nunca correr solo, ver `db/README.md`)
 - `backend/agent/system_prompt.md` — system prompt del agente evaluador
 - `docs/caso-de-referencia-criterios.md` — lógica de los criterios deducida del
   único caso real calificado a mano (`docs/plantilla-lid-montos-grandes-ejemplo-real.jpeg`).

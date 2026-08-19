@@ -126,7 +126,7 @@ distinto**, o el agente va a aplicar el mismo estándar a los dos.
 Del lado técnico ya está cubierto: el agente recibe y devuelve `parametro_id`
 (el UUID de la fila), no el texto de la pregunta — ver
 `backend/agent/output_schema.json`. El seed las siembra como filas separadas
-por `categoria_id` + `orden` (`db/schema.sql`). No hay colisión posible.
+por `categoria_id` + `orden` (`db/000_schema_inicial.sql`). No hay colisión posible.
 
 ### 4. Ojo con imitar el estilo de las justificaciones humanas
 
