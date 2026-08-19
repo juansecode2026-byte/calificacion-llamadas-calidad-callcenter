@@ -99,4 +99,8 @@ end;
 $$;
 
 comment on function calcular_veredicto_categoria(uuid, uuid) is
-  'Veredicto SI/NO/SIN_VEREDICTO de una categoría. Cuenta "aplicables" desde parametros_calidad (LEFT JOIN), no desde calificacion_detalle: una fila faltante hace fallar la función (raise exception) en vez de tratarse como si fuera n/a. search_path fijo desde el propio CREATE — reemplaza el ALTER FUNCTION de la migración 010, que un CREATE OR REPLACE posterior sin este cuidado podía revertir en silencio.';
+  'Veredicto SI/NO/SIN_VEREDICTO de una categoria. Cuenta "aplicables"
+  desde parametros_calidad (LEFT JOIN), no desde calificacion_detalle:
+  una fila faltante hace fallar la funcion en vez de tratarse como n/a.
+  search_path fijo desde el propio CREATE, no por un ALTER FUNCTION
+  aparte como en la migracion 010.';
