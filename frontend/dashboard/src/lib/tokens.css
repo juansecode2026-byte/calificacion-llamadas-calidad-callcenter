@@ -1,0 +1,105 @@
+/* lib/tokens.css — única fuente de color, espacio y tipografía del dashboard.
+ *
+ * Regla: ningún .module.css escribe un hex, un px de espaciado ni una familia
+ * tipográfica sueltos. Todo sale de acá. Ver skill `revisor-full-stack`.
+ *
+ * Los NOMBRES describen el rol que cumple el token, nunca su apariencia
+ * (`--color-aprobado`, no `--color-verde`). Por eso cambiar de dirección
+ * visual es reemplazar valores en este archivo y nada más.
+ *
+ * ESTADO: los valores son los de la dirección "A · Expediente" del canvas de
+ * diseño, y son PROVISORIOS — el usuario todavía no eligió dirección entre
+ * A (Expediente), B (Consola) y C (Ficha). Los nombres ya son definitivos.
+ */
+
+:root {
+  /* ---- Superficie ---------------------------------------------------- */
+  --color-bg: #faf8f4;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f2ede3;
+  --color-border: #e0d9cc;
+  --color-border-strong: #201d18;
+
+  /* ---- Texto --------------------------------------------------------- */
+  --color-text: #201d18;
+  --color-text-muted: #665f52;
+  --color-text-faint: #8c8271;
+
+  /* ---- Veredicto ------------------------------------------------------
+   * Estos cuatro son de DOMINIO, no decoración: salen del modelo de datos.
+   * Ver db/migrations/008_valor_na_y_veredicto.sql y 011_veredicto_venta.sql.
+   */
+  --color-aprobado: #2f6b48;   /* veredicto SI · valor 2 · venta CUENTA     */
+  --color-rechazado: #9e3a2b;  /* veredicto NO · valor 0 · venta NO_CUENTA  */
+  --color-na: #8c8271;         /* valor n/a · categoría SIN_VEREDICTO       */
+  --color-revision: #9a6b1f;   /* requiere_revision                         */
+
+  /* Fondos suaves de los mismos cuatro roles, para chips y filas. */
+  --color-aprobado-bg: #e4f3ea;
+  --color-rechazado-bg: #fbe7e4;
+  --color-na-bg: #f2ede3;
+  --color-revision-bg: #f7efdd;
+
+  /* ---- Estado del pipeline --------------------------------------------
+   * Estados de `llamadas.estado`. Ver db/migrations/004_estado_llamada.sql.
+   */
+  --color-pendiente: #8c8271;
+  --color-procesando: #2f5a7a;
+  --color-evaluada: #2f6b48;
+  --color-error: #9e3a2b;
+
+  /* ---- Espacio --------------------------------------------------------
+   * Múltiplos de 8, sin excepciones. Si algo "necesita" 14px, es 16px.
+   */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 40px;
+  --space-6: 56px;
+  --space-7: 72px;
+
+  /* ---- Tipografía ------------------------------------------------------
+   * Sin webfonts externas: el dashboard no debe depender de un CDN para
+   * renderizar. Si más adelante se embebe una familia propia, va como
+   * @font-face con el archivo servido desde public/.
+   */
+  --font-display: Georgia, "Iowan Old Style", "Times New Roman", serif;
+  --font-body: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-md: 16px;
+  --text-lg: 20px;
+  --text-xl: 32px;
+  --text-2xl: 48px;
+
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+  --leading-loose: 1.6;
+
+  /* ---- Forma y movimiento --------------------------------------------- */
+  --radius: 6px;
+  --radius-lg: 10px;
+  --border-width: 1px;
+
+  --transition: 180ms ease;
+  --transition-slow: 280ms ease;
+
+  /* ---- Foco ------------------------------------------------------------
+   * :focus-visible es obligatorio en todo elemento interactivo. Estos dos
+   * tokens existen para que nadie improvise su propio anillo de foco.
+   */
+  --focus-ring: 2px solid var(--color-aprobado);
+  --focus-offset: 2px;
+}
+
+/* Todo el motion respeta la preferencia del sistema. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition: 0ms;
+    --transition-slow: 0ms;
+  }
+}
