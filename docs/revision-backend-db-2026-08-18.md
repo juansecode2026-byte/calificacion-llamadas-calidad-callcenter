@@ -15,11 +15,25 @@ como estaba al momento de revisar. El estado de qué se corrigió vive en cada
 commit, no acá.
 
 > **Actualización 2026-08-18 (mismo día):** los 3 bloqueantes (H1, H2, H3) y
-> H4 quedaron resueltos — ver `db/migrations/014_veredicto_categoria_robusto.sql`
+> H4 quedaron resueltos en el repo — ver `db/migrations/014_veredicto_categoria_robusto.sql`
 > (H2, H3, H4) y el renombre de `schema.sql` a `db/000_schema_inicial.sql` +
-> `db/README.md` (H1). Faltan aplicarse contra Supabase — el conector MCP se
-> desconectó a mitad de sesión. El resto de los hallazgos (10 importantes, 11
-> menores) sigue sin tocar.
+> `db/README.md` (H1).
+>
+> **Actualización 2026-08-19: H2, H3 y H4 quedaron aplicados y verificados
+> contra la base real** (proyecto `mdkussaxoyhdwvezwjqe`), corridos a mano
+> por el usuario vía SQL Editor —el conector MCP seguía desconectado—.
+> Verificación: las 2 constraints unique existen
+> (`calificacion_detalle_unica_por_parametro`,
+> `categoria_resultado_unica_por_categoria`); `pg_proc.proconfig` de
+> `calcular_veredicto_categoria` muestra `["search_path=public"]`; y llamar
+> a la función con un `categoria_id` inexistente ahora falla con
+> `P0001: categoria_evaluacion ... inexistente o sin umbral_aprobacion` en
+> vez de devolver `'NO'` en silencio.
+>
+> H1 (el renombre del schema) no requiere aplicarse en Supabase —es
+> reorganización del repo, no una migración—, así que ya está cerrado por
+> completo. El resto de los hallazgos (10 importantes, 11 menores) sigue sin
+> tocar.
 
 ---
 
