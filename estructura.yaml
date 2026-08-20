@@ -42,5 +42,9 @@ carpetas:
     para: Hooks de React, incluyendo la suscripción a Supabase Realtime
   - ruta: frontend/dashboard/src/lib
     para: Clientes y utilidades compartidas (supabaseClient, helpers)
+  - ruta: frontend/dashboard/src/services
+    para: Funciones async simples para llamadas a Supabase y APIs externas, un archivo por sistema externo (STACK.md lo exige) — ver authService.ts
+  - ruta: frontend/dashboard/src/stores
+    para: Stores de Zustand, un dominio por archivo, sin middleware salvo justificación puntual — ver authStore.ts
   - ruta: frontend/dashboard/public
     para: Assets estáticos servidos tal cual
