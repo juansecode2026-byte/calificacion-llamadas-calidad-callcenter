@@ -4,51 +4,79 @@
  * tipográfica sueltos. Todo sale de acá. Ver skill `revisor-full-stack`.
  *
  * Los NOMBRES describen el rol que cumple el token, nunca su apariencia
- * (`--color-aprobado`, no `--color-verde`). Por eso cambiar de dirección
+ * (`--color-aprobado`, no `--color-dorado`). Por eso cambiar de dirección
  * visual es reemplazar valores en este archivo y nada más.
  *
- * ESTADO: los valores son los de la dirección "A · Expediente" del canvas de
- * diseño, y son PROVISORIOS — el usuario todavía no eligió dirección entre
- * A (Expediente), B (Consola) y C (Ficha). Los nombres ya son definitivos.
+ * ESTADO: dirección elegida el 2026-08-19 — dorado sobre fondo oscuro, con
+ * tarjetas de vidrio esmerilado. Traducida de landing-final.html /
+ * dashboard-final.html (aportados por el usuario), no inventada acá.
+ *
+ * Corrección aplicada al traducir: en landing-final.html el veredicto "NO"
+ * era gris (`.v-no`) y en dashboard-final.html era rojo (`.chip.done-no`).
+ * Un veredicto negativo no puede cambiar de color según la pantalla — se
+ * unificó a rojo (--color-rechazado) en las dos.
  */
 
 :root {
-  /* ---- Superficie ---------------------------------------------------- */
-  --color-bg: #faf8f4;
-  --color-surface: #ffffff;
-  --color-surface-alt: #f2ede3;
-  --color-border: #e0d9cc;
-  --color-border-strong: #201d18;
+  /* ---- Superficie -------------------------------------------------------
+   * El fondo es oscuro con dos capas (--color-bg / --color-bg-secondary,
+   * usadas en el degradé radial de fondo) y las tarjetas son vidrio
+   * esmerilado translúcido sobre ese fondo — de ahí --color-surface con
+   * alpha y --blur.
+   */
+  --color-bg: #0b0a08;
+  --color-bg-secondary: #141210;
+  --color-surface: rgba(255, 255, 255, 0.04);
+  --color-surface-hover: rgba(255, 255, 255, 0.06);
+  --color-border: rgba(212, 175, 110, 0.2);
+  --color-border-strong: rgba(245, 241, 232, 0.25);
+  --blur: 20px;
 
-  /* ---- Texto --------------------------------------------------------- */
-  --color-text: #201d18;
-  --color-text-muted: #665f52;
-  --color-text-faint: #8c8271;
+  /* ---- Texto -------------------------------------------------------- */
+  --color-text: #f5f1e8;
+  --color-text-muted: #b0a996;
+  --color-text-faint: #6e6858;
+
+  /* ---- Acento de marca ------------------------------------------------
+   * El dorado es el acento único de la marca — se usa para CTAs, foco, y
+   * como base del veredicto aprobado (ver abajo). --color-accent-light es
+   * la variante clara para texto sobre fondo oscuro.
+   */
+  --color-accent: #c9a55c;
+  --color-accent-light: #e4cfa0;
 
   /* ---- Veredicto ------------------------------------------------------
    * Estos cuatro son de DOMINIO, no decoración: salen del modelo de datos.
-   * Ver db/migrations/008_valor_na_y_veredicto.sql y 011_veredicto_venta.sql.
+   * Ver db/migrations/008_valor_na_y_veredicto.sql, 011_veredicto_venta.sql
+   * y 022_preguntas_totales_check.sql (preguntas_no_aplica).
    */
-  --color-aprobado: #2f6b48;   /* veredicto SI · valor 2 · venta CUENTA     */
-  --color-rechazado: #9e3a2b;  /* veredicto NO · valor 0 · venta NO_CUENTA  */
-  --color-na: #8c8271;         /* valor n/a · categoría SIN_VEREDICTO       */
-  --color-revision: #9a6b1f;   /* requiere_revision                         */
+  --color-aprobado: var(--color-accent-light);  /* veredicto SI · valor 2 · venta CUENTA */
+  --color-rechazado: #d97a6e;                    /* veredicto NO · valor 0 · venta NO_CUENTA */
+  --color-na: var(--color-text-muted);           /* valor n/a · pregunta fuera de cálculo */
+  --color-revision: #e0995a;                     /* requiere_revision · SIN_VEREDICTO */
 
-  /* Fondos suaves de los mismos cuatro roles, para chips y filas. */
-  --color-aprobado-bg: #e4f3ea;
-  --color-rechazado-bg: #fbe7e4;
-  --color-na-bg: #f2ede3;
-  --color-revision-bg: #f7efdd;
+  /* Fondos translúcidos de los mismos cuatro roles, para chips y filas. */
+  --color-aprobado-bg: rgba(201, 165, 92, 0.16);
+  --color-rechazado-bg: rgba(217, 122, 110, 0.16);
+  --color-na-bg: rgba(255, 255, 255, 0.05);
+  --color-revision-bg: rgba(224, 153, 90, 0.14);
 
-  /* ---- Estado del pipeline --------------------------------------------
-   * Estados de `llamadas.estado`. Ver db/migrations/004_estado_llamada.sql.
+  /* ---- Estado del pipeline ----------------------------------------------
+   * Estados de `llamadas.estado` (5 valores, no 4 — no olvidar "error").
+   * Ver db/migrations/004_estado_llamada.sql.
    */
-  --color-pendiente: #8c8271;
-  --color-procesando: #2f5a7a;
-  --color-evaluada: #2f6b48;
-  --color-error: #9e3a2b;
+  --color-pendiente: var(--color-text-muted);
+  --color-transcribiendo: var(--color-accent-light);
+  --color-evaluando: var(--color-accent-light);
+  --color-calificada: var(--color-aprobado);
+  --color-error: var(--color-rechazado);
 
-  /* ---- Espacio --------------------------------------------------------
+  --color-pendiente-bg: rgba(255, 255, 255, 0.05);
+  --color-transcribiendo-bg: rgba(201, 165, 92, 0.12);
+  --color-evaluando-bg: rgba(201, 165, 92, 0.12);
+  --color-error-bg: rgba(217, 122, 110, 0.14);
+
+  /* ---- Espacio ------------------------------------------------------
    * Múltiplos de 8, sin excepciones. Si algo "necesita" 14px, es 16px.
    */
   --space-1: 8px;
@@ -59,30 +87,31 @@
   --space-6: 56px;
   --space-7: 72px;
 
-  /* ---- Tipografía ------------------------------------------------------
+  /* ---- Tipografía ---------------------------------------------------
    * Sin webfonts externas: el dashboard no debe depender de un CDN para
-   * renderizar. Si más adelante se embebe una familia propia, va como
-   * @font-face con el archivo servido desde public/.
+   * renderizar (los mocks originales pedían "Inter", que no está embebida
+   * en ningún lado — se retira del stack, queda system-ui/Segoe UI).
    */
   --font-display: Georgia, "Iowan Old Style", "Times New Roman", serif;
-  --font-body: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-body: -apple-system, "Segoe UI", system-ui, sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
   --text-xs: 11px;
-  --text-sm: 13px;
+  --text-sm: 12.5px;
   --text-base: 14px;
   --text-md: 16px;
-  --text-lg: 20px;
+  --text-lg: 22px;
   --text-xl: 32px;
   --text-2xl: 48px;
 
   --leading-tight: 1.2;
   --leading-normal: 1.5;
-  --leading-loose: 1.6;
+  --leading-loose: 1.75;
 
   /* ---- Forma y movimiento --------------------------------------------- */
-  --radius: 6px;
-  --radius-lg: 10px;
+  --radius: 9px;
+  --radius-lg: 16px;
+  --radius-pill: 30px;
   --border-width: 1px;
 
   --transition: 180ms ease;
@@ -92,7 +121,7 @@
    * :focus-visible es obligatorio en todo elemento interactivo. Estos dos
    * tokens existen para que nadie improvise su propio anillo de foco.
    */
-  --focus-ring: 2px solid var(--color-aprobado);
+  --focus-ring: 2px solid var(--color-accent);
   --focus-offset: 2px;
 }
 
