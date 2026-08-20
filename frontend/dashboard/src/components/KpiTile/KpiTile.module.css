@@ -1,0 +1,42 @@
+.tile {
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  padding: var(--space-2) var(--space-3);
+}
+
+.label {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-1);
+}
+
+.value {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.value.accent {
+  color: var(--color-accent-light);
+}
+
+.delta {
+  font-size: var(--text-sm);
+  margin-top: 6px;
+}
+
+.up {
+  color: var(--color-aprobado);
+}
+
+.down {
+  color: var(--color-rechazado);
+}
+
+.neutral {
+  color: var(--color-text-faint);
+}

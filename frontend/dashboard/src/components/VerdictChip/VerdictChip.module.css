@@ -1,0 +1,23 @@
+.chip {
+  display: inline-block;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+}
+
+.si {
+  color: var(--color-aprobado);
+  background: var(--color-aprobado-bg);
+}
+
+.no {
+  color: var(--color-rechazado);
+  background: var(--color-rechazado-bg);
+}
+
+.sinVeredicto {
+  color: var(--color-revision);
+  background: var(--color-revision-bg);
+}

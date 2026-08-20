@@ -1,0 +1,38 @@
+.chip {
+  display: inline-block;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+
+.pendiente {
+  color: var(--color-pendiente);
+  background: var(--color-pendiente-bg);
+}
+
+.enProceso {
+  color: var(--color-transcribiendo);
+  background: var(--color-transcribiendo-bg);
+}
+
+.cuenta {
+  color: var(--color-aprobado);
+  background: var(--color-aprobado-bg);
+}
+
+.noCuenta {
+  color: var(--color-rechazado);
+  background: var(--color-rechazado-bg);
+}
+
+.revision {
+  color: var(--color-revision);
+  background: var(--color-revision-bg);
+}
+
+.error {
+  color: var(--color-error);
+  background: var(--color-error-bg);
+}
