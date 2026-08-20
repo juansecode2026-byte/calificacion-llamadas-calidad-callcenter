@@ -1,0 +1,51 @@
+@import './lib/tokens.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  /* Los dos glows radiales se derivan de --color-accent con color-mix() en
+   * vez de repetir su hex como rgba() suelto — sigue siendo un solo valor
+   * de origen en tokens.css. */
+  background:
+    radial-gradient(1000px 600px at 85% -10%, color-mix(in srgb, var(--color-accent) 10%, transparent), transparent),
+    radial-gradient(800px 500px at 10% 110%, color-mix(in srgb, var(--color-accent) 5%, transparent), transparent),
+    var(--color-bg);
+  background-attachment: fixed;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+}
+
+a {
+  color: var(--color-accent-light);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+a:hover {
+  color: var(--color-accent);
+}
+
+button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
