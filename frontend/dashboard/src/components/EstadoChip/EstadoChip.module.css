@@ -7,6 +7,11 @@
   white-space: nowrap;
 }
 
+.cargada {
+  color: var(--color-text-faint);
+  background: rgba(255, 255, 255, 0.04);
+}
+
 .pendiente {
   color: var(--color-pendiente);
   background: var(--color-pendiente-bg);
