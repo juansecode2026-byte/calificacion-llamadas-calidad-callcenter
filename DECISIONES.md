@@ -82,23 +82,30 @@ activación.
   (migraciones 028 y 029), confirmado con el usuario.
 
 ## Transcripción automática de audio (paso 2 del pipeline)
-- Estado: **aplazado**
-- Fecha: 2026-08-20
-- Motivo: `backend/worker/transcribir.ts` existe pero **falla a propósito**.
-  Devolver texto de relleno haría que el agente evalúe una transcripción falsa
-  y produzca un veredicto con apariencia de real sobre una llamada que nadie
-  transcribió — el peor resultado posible para un sistema cuyo output afecta a
-  un asesor real.
-- Condición de activación: decidir **diarización** (separar "Asesor:" de
-  "Cliente:" en el texto), que sigue abierta en `docs/CONTEXT.md` sección 6.
-  No es cosmético: el system prompt del agente evalúa la conducta del ASESOR,
-  no la del cliente (regla 9). Sin diarización, el agente tiene que inferir
-  quién habla — exactamente el tipo de inferencia que su regla 1 le prohíbe.
-  Definido eso, elegir entre Whisper local, faster-whisper o un servicio con
-  diarización nativa.
-- Mientras tanto: el worker procesa normalmente cualquier llamada que ya tenga
-  una transcripción vigente cargada a mano, lo que permite probar el resto del
-  pipeline de punta a punta.
+- Estado: **aceptado**
+- Fecha: 2026-08-21
+- Mecanismo: **script**, sin agente (`backend/worker/transcribir.ts`) — no hay
+  juicio ni inferencia, es "bajar el audio, separar canales, llamar a una API,
+  ordenar el resultado por tiempo". Mismo criterio que el resto del worker.
+- Qué se decidió con el usuario (reemplaza el aplazamiento del 2026-08-20):
+  1. **Diarización**: los audios llegan en **estéreo, un canal por
+     hablante** (confirmado por el usuario, típico de grabación VoIP/PBX) —
+     no hace falta un modelo de diarización aparte (pyannote, etc.): separar
+     canales con `ffmpeg` alcanza. Si algún audio llegara en mono, el script
+     falla ruidosamente en vez de inventar una separación que no existe.
+  2. **Asignación de canal**: `CANAL_ASESOR_LADO=izquierdo` por convención de
+     PBX — a confirmar con la primera llamada real; es la única variable a
+     tocar si viniera invertido.
+  3. **Proveedor**: **Groq** (`whisper-large-v3-turbo`), elegido explícitamente
+     por el usuario para esta etapa de desarrollo/pruebas por ser gratuito y
+     rápido de validar en español. **No confirmado para producción** — antes
+     de ese salto, recalcular volumen real de llamadas contra los límites del
+     plan gratis de Groq (el usuario ya lo señaló como pendiente).
+- Requiere `ffmpeg` instalado en el host del worker (binario de sistema, no
+  paquete de npm) y la variable `GROQ_API_KEY` (ver "Variables de entorno").
+- Ya no aplica la nota anterior de "el worker igual procesa llamadas con
+  transcripción vigente cargada a mano" como única vía de prueba — ahora
+  también transcribe de verdad.
 
 ## Edge Function de ingesta (`backend/functions/cargar-llamada`)
 - Estado: **aceptado**

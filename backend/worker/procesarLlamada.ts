@@ -1,5 +1,5 @@
 import { supabase } from './supabase.ts';
-import { transcribirAudio } from './transcribir.ts';
+import { transcribirAudio, MODELO_TRANSCRIPCION } from './transcribir.ts';
 import { evaluarLlamada, type PreguntaPlantilla } from '../agent/client.ts';
 import { parsearEvaluaciones } from '../agent/parser.ts';
 
@@ -106,7 +106,7 @@ async function obtenerTranscripcion(llamadaId: string): Promise<string> {
   const { error: errorInsert } = await supabase.from('transcripciones').insert({
     llamada_id: llamadaId,
     texto,
-    modelo: process.env.WHISPER_MODEL ?? 'desconocido',
+    modelo: MODELO_TRANSCRIPCION,
   });
   if (errorInsert) throw errorInsert;
   return texto;

@@ -32,7 +32,7 @@ Sistema de evaluación de calidad de llamadas para un call center de ventas. Aut
 
 ## Flujo del pipeline (orden fijo, no alterar)
 1. **Ingesta** — carga manual desde el dashboard: se busca al asesor por su correo (con autocompletado y confirmación visual del nombre) y se adjunta el audio. Una Edge Function guarda el archivo en Storage, calcula la duración leyendo el archivo, y crea el registro de la llamada. No hay integración automática con ningún dialer por ahora.
-2. **Transcripción** — Whisper procesa el audio, resultado vinculado a la llamada. Script.
+2. **Transcripción** — Whisper (vía Groq) procesa el audio, resultado vinculado a la llamada. Script, sin agente — `backend/worker/transcribir.ts`. Los audios llegan en estéreo (un canal por hablante); la diarización sale de separar canales con `ffmpeg` antes de transcribir, no de un modelo de diarización aparte — ver `CANAL_ASESOR_LADO` en "Variables de entorno".
 3. **Evaluación** — el agente recibe la transcripción completa + preguntas y criterios de la plantilla activa en un solo prompt estructurado. Devuelve JSON con `valor` y `justificacion` por pregunta. Único paso con juicio/inferencia.
 4. **Cálculo y veredicto** — suma de puntajes por categoría, aplicación del umbral de aprobación, decisión final. Siempre script determinista, nunca el agente.
 5. **Notificación** — envío automático al asesor con el detalle y justificación por pregunta.
@@ -99,7 +99,8 @@ bundle público del dashboard, visible para cualquiera que abra el navegador.
 | `VITE_SUPABASE_ANON_KEY` | Frontend | No — protegida por RLS, no por secreto |
 | `SUPABASE_SERVICE_ROLE_KEY` | Backend/worker (`backend/functions`, `backend/worker`) | **Sí — nunca `VITE_`** |
 | `ANTHROPIC_API_KEY` | Agente evaluador (`backend/agent/client.ts`) | **Sí — nunca `VITE_`** |
-| `WHISPER_MODEL` | Worker de transcripción | No |
+| `GROQ_API_KEY` | Worker de transcripción (`backend/worker/transcribir.ts`) | **Sí — nunca `VITE_`** |
+| `CANAL_ASESOR_LADO` | Worker de transcripción | No |
 
 ## Restricciones
 - No correr el pipeline de evaluación de forma síncrona en el request del botón.
