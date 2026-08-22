@@ -1,0 +1,25 @@
+-- Migracion 032: otorgar USAGE sobre el schema "private" a service_role
+--
+-- Bug real encontrado al probar el pipeline de punta a punta por primera
+-- vez: cerrar_calificacion() (public, SECURITY INVOKER) llama sin calificar
+-- a private.calcular_veredicto_categoria(uuid, uuid) confiando en su propio
+-- "SET search_path TO public, private, pg_temp". El worker invoca
+-- cerrar_calificacion() via RPC con la service_role key, así que la funcion
+-- corre con los privilegios de "service_role" -- y ese rol nunca recibio
+-- USAGE sobre "private" (el grant original, al mover los helpers de RLS a
+-- ese schema, solo cubrio "anon, authenticated").
+--
+-- Sin USAGE sobre el schema, Postgres ni siquiera considera los objetos de
+-- "private" al resolver un nombre sin calificar -- por eso el error real
+-- fue "function calcular_veredicto_categoria(uuid, uuid) does not exist"
+-- (42883) y no un error de permisos (42501): EXECUTE sobre la funcion ya
+-- estaba correctamente otorgado (default a PUBLIC al crearla), pero el
+-- nombre nunca llego a resolverse.
+--
+-- Verificado antes de escribir esto: has_schema_privilege('service_role',
+-- 'private', 'USAGE') devolvia false; has_function_privilege(.... EXECUTE)
+-- ya era true en las 5 funciones de "private". Verificado después de
+-- aplicar: cerrar_calificacion() completo sin error sobre una calificacion
+-- real.
+
+grant usage on schema private to service_role;
