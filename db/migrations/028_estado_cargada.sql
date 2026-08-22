@@ -1,0 +1,25 @@
+-- Migracion 028: estado 'cargada' — separar adjuntar de disparar
+--
+-- Hueco detectado el 2026-08-20 al construir el worker: CLAUDE.md dice
+-- "El disparo del pipeline es manual: un boton en el dashboard, no
+-- automatico al recibir el audio", pero el schema no lo permitia.
+--
+-- llamadas.estado arrancaba en 'pendiente' por defecto, y 'pendiente' es
+-- justamente el estado que el worker busca para procesar. Con ese default,
+-- subir el audio encolaba la llamada automaticamente -- exactamente lo
+-- contrario de la regla escrita. Faltaba un estado que significara
+-- "cargada, pero todavia no la mandaron a evaluar".
+--
+-- Confirmado con el usuario (2026-08-20): se mantiene el disparo manual.
+-- Sube el audio -> queda 'cargada' (no pasa nada). Aprieta "Evaluar" ->
+-- pasa a 'pendiente' -> el worker la toma.
+--
+-- Se agrega BEFORE 'pendiente' para que el orden del enum refleje el orden
+-- real del flujo: cargada -> pendiente -> transcribiendo -> evaluando ->
+-- calificada (+ error). Eso hace que un ORDER BY estado ordene por avance
+-- del pipeline sin necesidad de un CASE.
+--
+-- El cambio de DEFAULT va en la migracion 029, no aca: Postgres no permite
+-- USAR un valor de enum en la misma transaccion en que se lo agrego.
+
+alter type estado_llamada add value 'cargada' before 'pendiente';
