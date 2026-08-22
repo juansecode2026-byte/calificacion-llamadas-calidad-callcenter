@@ -20,6 +20,11 @@
   color: var(--color-text-muted);
 }
 
+.valorSinDatos {
+  color: var(--color-text-faint);
+  font-style: italic;
+}
+
 .bar {
   height: 6px;
   border-radius: 4px;
@@ -32,6 +37,20 @@
   height: 100%;
   border-radius: 4px;
   background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
+}
+
+.fillSinDatos {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--color-text-faint),
+    var(--color-text-faint) 5px,
+    transparent 5px,
+    transparent 10px
+  );
+  opacity: 0.35;
 }
 
 .revisionNote {
