@@ -53,7 +53,7 @@ Sistema de evaluación de calidad de llamadas para un call center de ventas. Aut
 ## Agente evaluador (paso 3 del pipeline)
 - **Modelo:** `claude-sonnet-5` por defecto. Balance entre criterio (evidencia + matices) y costo, dado que corre por cada llamada evaluada. Subir a Opus solo si la validación de calidad muestra fallos en casos ambiguos; bajar a Haiku 4.5 solo tras comparar resultados reales.
 - **Structured Outputs (JSON Schema):** la respuesta del modelo queda forzada a cumplir el schema a nivel de generación — `valor` no puede ser otra cosa que `"0"`, `"2"` o `"n/a"`, **siempre como texto** (un enum de tipos mixtos número/string no es válido en modo estricto). `parser.ts` convierte `"0"`/`"2"` a `valor` entero + `no_aplica=false`, y `"n/a"` a `valor=null` + `no_aplica=true`. Ver `backend/agent/output_schema.json`.
-- **`temperature` baja:** para reproducibilidad entre evaluaciones de la misma llamada. No es 100% determinístico incluso en 0 — solo reduce la variación.
+- **Sin `temperature`:** `claude-sonnet-5` **no acepta** parámetros de sampling (`temperature`/`top_p`/`top_k`) — devuelven error 400. (La versión anterior de esta línea pedía "temperature baja"; era irrealizable con el modelo elegido, detectado el 2026-08-20 al escribir `client.ts`.) La reproducibilidad entre evaluaciones de la misma llamada se apoya en el criterio explícito del system prompt y en los `criterio_evaluacion` por pregunta, no en el sampling. Si hiciera falta más control, la palanca es `output_config.effort`, no `temperature`.
 - **División de responsabilidades:** la API garantiza el formato; `parser.ts` solo valida reglas de negocio (que los 9 `id` de la plantilla estén presentes, ninguno repetido ni faltante).
 
 ```
