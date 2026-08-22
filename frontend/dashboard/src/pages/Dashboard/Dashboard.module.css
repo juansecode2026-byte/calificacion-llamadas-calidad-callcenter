@@ -267,6 +267,18 @@
 .pipeRow:last-child {
   border-bottom: none;
 }
+.pipeLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  border-radius: var(--radius);
+  transition: color var(--transition);
+}
+.pipeLink:hover .pipeName {
+  color: var(--color-accent-light);
+}
 .pipeId {
   font-size: var(--text-xs);
   color: var(--color-text-faint);
@@ -277,6 +289,7 @@
   font-size: var(--text-sm);
   flex: 1;
   color: var(--color-text);
+  transition: color var(--transition);
 }
 .evaluarBtn {
   font-size: var(--text-xs);

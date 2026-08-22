@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { KpiTile } from '../../components/KpiTile/KpiTile';
 import { EstadoChip } from '../../components/EstadoChip/EstadoChip';
 import { CategoryBar } from '../../components/CategoryBar/CategoryBar';
@@ -276,8 +276,12 @@ export function Dashboard() {
               ) : (
                 pipeline.map((fila) => (
                   <div className={styles.pipeRow} key={fila.id}>
-                    <span className={styles.pipeId}>#{fila.id.slice(0, 8)}</span>
-                    <span className={styles.pipeName}>{fila.asesor}</span>
+                    {/* El detalle (9 preguntas + justificación de la IA) vive en
+                        /llamada/:id — es la pantalla de auditoría del veredicto. */}
+                    <Link to={`/llamada/${fila.id}`} className={styles.pipeLink}>
+                      <span className={styles.pipeId}>#{fila.id.slice(0, 8)}</span>
+                      <span className={styles.pipeName}>{fila.asesor}</span>
+                    </Link>
                     <EstadoChip
                       estado={fila.estado}
                       veredictoVenta={fila.veredictoVenta}
