@@ -100,17 +100,30 @@ activación.
   una transcripción vigente cargada a mano, lo que permite probar el resto del
   pipeline de punta a punta.
 
-## Edge Function de ingesta (`backend/functions/`)
-- Estado: **aplazado**
-- Fecha: 2026-08-20
+## Edge Function de ingesta (`backend/functions/cargar-llamada`)
+- Estado: **aceptado**
+- Fecha: 2026-08-21
 - Motivo: no hace falta agente — son pasos fijos ya descritos en `CLAUDE.md`
   (buscar asesor por correo, subir el audio a Storage, calcular duración, crear
   el registro). Script (Edge Function Deno). Es la pieza más simple del
-  pipeline, y el Arquitecto la marcó como independiente: puede construirse en
+  pipeline, y el Arquitecto la marcó como independiente: pudo construirse en
   paralelo con el agente.
-- Condición de activación: que se quiera cargar una llamada real desde el
-  dashboard. Hoy el formulario del frontend existe pero no tiene backend que
-  reciba el audio.
+- Qué se construyó: `backend/functions/cargar-llamada/index.ts`, desplegada
+  (versión 1, `verify_jwt=true`). Valida sesión + evaluador activo con
+  `service_role` (bypassea RLS a propósito, mismo patrón que el worker), busca
+  el asesor con `ilike` sobre `correo` (el índice único es sobre
+  `lower(trim(correo))`, no la columna cruda), sube el audio a
+  `audios-llamadas`, lee la duración real del archivo con `music-metadata`
+  (vía especificador `npm:`, sin bloquear la carga si el parseo falla), e
+  inserta la llamada con `estado` en su default (`cargada`).
+- Requirió, además: `db/migrations/031_disparar_evaluacion.sql` (nueva policy
+  de UPDATE, acotada a la columna `estado` y a la transición exacta
+  `cargada → pendiente`, mismo patrón de grant-por-columna que H6/migración
+  017) para que el botón "Evaluar" del dashboard pueda disparar el pipeline
+  sobre una llamada recién cargada.
+- Decisión pendiente, no bloqueante: `fecha_hora` de la llamada se aproxima a
+  "ahora" (momento de la carga) porque no hay integración con ningún dialer
+  todavía — si eso cambia, este es el lugar a ajustar.
 
 ## Notificador automático al asesor (paso 5 del pipeline)
 - Estado: **aplazado**

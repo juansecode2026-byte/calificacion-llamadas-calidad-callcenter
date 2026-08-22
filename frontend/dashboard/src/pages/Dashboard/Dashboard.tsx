@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { KpiTile } from '../../components/KpiTile/KpiTile';
 import { EstadoChip } from '../../components/EstadoChip/EstadoChip';
@@ -18,6 +18,12 @@ import {
   type FilaCategoria,
   type FilaAsesor,
 } from '../../services/dashboardService';
+import {
+  buscarAsesorPorCorreo,
+  subirLlamada,
+  dispararEvaluacion,
+  type AsesorEncontrado,
+} from '../../services/ingestaService';
 import type { PuntoTendencia } from '../../charts/TrendChart/TrendChart';
 import styles from './Dashboard.module.css';
 
@@ -27,6 +33,11 @@ export function Dashboard() {
 
   const [correo, setCorreo] = useState('');
   const [archivo, setArchivo] = useState<File | null>(null);
+  const [asesorEncontrado, setAsesorEncontrado] = useState<AsesorEncontrado | null>(null);
+  const [buscandoAsesor, setBuscandoAsesor] = useState(false);
+  const [subiendo, setSubiendo] = useState(false);
+  const [mensajeCarga, setMensajeCarga] = useState<{ texto: string; error: boolean } | null>(null);
+  const [evaluandoId, setEvaluandoId] = useState<string | null>(null);
 
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -72,11 +83,67 @@ export function Dashboard() {
     navigate('/');
   }
 
-  function handleSubmit(e: FormEvent) {
+  // Autocompletado con confirmación visual del nombre (CLAUDE.md, paso 1)
+  // — debounced para no golpear la base en cada tecla.
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (!correo.trim()) {
+      setAsesorEncontrado(null);
+      return;
+    }
+    setBuscandoAsesor(true);
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const encontrado = await buscarAsesorPorCorreo(correo);
+        setAsesorEncontrado(encontrado);
+      } catch {
+        setAsesorEncontrado(null);
+      } finally {
+        setBuscandoAsesor(false);
+      }
+    }, 400);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [correo]);
+
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    // No hay submit real: backend/functions/ (la Edge Function de ingesta)
-    // sigue aplazada en DECISIONES.md. El formulario queda armado para
-    // cuando exista, sin fingir que hoy sube algo.
+    if (!asesorEncontrado || !archivo || subiendo) return;
+
+    setSubiendo(true);
+    setMensajeCarga(null);
+    try {
+      const resultado = await subirLlamada(correo, archivo);
+      setMensajeCarga({
+        texto: `Llamada cargada para ${resultado.asesor}. Ya aparece en "Estado en tiempo real" — usá "Evaluar" cuando quieras disparar el pipeline.`,
+        error: false,
+      });
+      setCorreo('');
+      setArchivo(null);
+      setAsesorEncontrado(null);
+      await cargarTodo();
+    } catch (err) {
+      setMensajeCarga({
+        texto: err instanceof Error ? err.message : 'No se pudo subir la llamada.',
+        error: true,
+      });
+    } finally {
+      setSubiendo(false);
+    }
+  }
+
+  async function handleEvaluar(llamadaId: string) {
+    setEvaluandoId(llamadaId);
+    try {
+      await dispararEvaluacion(llamadaId);
+      await cargarTodo();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo disparar la evaluación.');
+    } finally {
+      setEvaluandoId(null);
+    }
   }
 
   return (
@@ -110,8 +177,7 @@ export function Dashboard() {
       <form className={styles.upload} onSubmit={handleSubmit}>
         <div className={styles.uploadTitle}>Subir una llamada</div>
         <div className={styles.uploadSub}>
-          Pendiente: falta la Edge Function de ingesta (<code>backend/functions/</code>) — el
-          formulario todavía no envía nada.
+          Se busca al asesor por correo — confirmá el nombre antes de subir el audio.
         </div>
         <div className={styles.uploadRow}>
           <div className={styles.field}>
@@ -122,12 +188,21 @@ export function Dashboard() {
               placeholder="correo@empresa.com"
               value={correo}
               onChange={(e) => setCorreo(e.target.value)}
-              disabled
+              disabled={subiendo}
             />
+            {correo.trim() && (
+              <span className={asesorEncontrado ? styles.asesorOk : styles.asesorFalta}>
+                {buscandoAsesor
+                  ? 'Buscando…'
+                  : asesorEncontrado
+                    ? `✓ ${asesorEncontrado.nombres} ${asesorEncontrado.apellidos}`
+                    : 'No se encontró ningún asesor activo con ese correo'}
+              </span>
+            )}
           </div>
           <div className={styles.field}>
             <label htmlFor="archivo-audio">Archivo de audio</label>
-            <label className={styles.fileBtnDisabled} htmlFor="archivo-audio">
+            <label className={styles.fileBtn} htmlFor="archivo-audio">
               {archivo ? archivo.name : 'Seleccionar archivo — ningún archivo elegido'}
             </label>
             <input
@@ -136,13 +211,22 @@ export function Dashboard() {
               accept="audio/*"
               className={styles.fileInput}
               onChange={(e) => setArchivo(e.target.files?.[0] ?? null)}
-              disabled
+              disabled={subiendo}
             />
           </div>
-          <button type="submit" className={styles.submitBtn} disabled>
-            Subir llamada
+          <button
+            type="submit"
+            className={styles.submitBtn}
+            disabled={!asesorEncontrado || !archivo || subiendo}
+          >
+            {subiendo ? 'Subiendo…' : 'Subir llamada'}
           </button>
         </div>
+        {mensajeCarga && (
+          <div className={mensajeCarga.error ? styles.errorBanner : styles.okBanner}>
+            {mensajeCarga.texto}
+          </div>
+        )}
       </form>
 
       {cargando ? (
@@ -199,6 +283,16 @@ export function Dashboard() {
                       veredictoVenta={fila.veredictoVenta}
                       requiereRevision={fila.requiereRevision}
                     />
+                    {fila.estado === 'cargada' && (
+                      <button
+                        type="button"
+                        className={styles.evaluarBtn}
+                        disabled={evaluandoId === fila.id}
+                        onClick={() => handleEvaluar(fila.id)}
+                      >
+                        {evaluandoId === fila.id ? 'Disparando…' : 'Evaluar'}
+                      </button>
+                    )}
                   </div>
                 ))
               )}
